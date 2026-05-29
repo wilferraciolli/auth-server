@@ -42,13 +42,9 @@ docker compose up -d
 
 Keycloak will start in **dev mode** (`start-dev`) and automatically import the `homelab` realm on first boot.
 
-### 3. Verify Keycloak
+### 3. Complete first-time Keycloak setup
 
-- Admin Console: http://localhost:8080
-- Log in with the credentials set in `.env`
-- Confirm the `homelab` realm is present
-- Under **homelab → Clients**, confirm `auth-server-client` exists with *Service Accounts Enabled*
-- Under **auth-server-client → Service account roles**, confirm `manage-users` (from `realm-management`) is assigned
+See the [Keycloak First-Time Setup](#keycloak-first-time-setup) section below for the full walkthrough — admin account reset, realm verification, service account role assignment, and client secret generation.
 
 ### 4. Run the Spring Boot app
 
@@ -74,7 +70,57 @@ Auth/
 
 ---
 
-## Keycloak Realm Setup
+## Keycloak First-Time Setup
+
+After running `docker compose up -d` for the first time, complete the following steps manually in the Admin Console at http://localhost:8080.
+
+### 1. Reset the admin account
+
+Keycloak 26 prompts you to update the temporary admin credentials on first login. If you skipped this or need to start fresh:
+
+1. Log in with the credentials from `.env` (`KEYCLOAK_ADMIN` / `KEYCLOAK_ADMIN_PASSWORD`)
+2. Go to **master** realm → **Users**
+3. Delete the existing `admin` user
+4. Go to **master** realm → **Users** → **Add user**
+   - Set a username (e.g. `admin`)
+   - Enable the user
+5. Go to the new user → **Credentials** → **Set password** (mark as not temporary)
+6. Go to the new user → **Role mapping** → **Assign role** → filter by `realm-management` → assign `admin`
+
+### 2. Verify the homelab realm was imported
+
+1. In the top-left realm dropdown, switch from **master** → **homelab**
+2. If `homelab` is not listed, import it manually:
+   - Go to the realm dropdown → **Create realm**
+   - Click **Browse** and upload `keycloak/realm-import.json`
+   - Click **Create**
+
+### 3. Assign service account roles to `auth-server-client`
+
+The realm import creates the client but does **not** automatically assign the service account roles. Do this once after first boot:
+
+1. In the **homelab** realm, go to **Clients** → `auth-server-client`
+2. Click the **Service accounts roles** tab
+3. Click **Assign role**
+4. In the filter dropdown, change **Filter by realm roles** → **Filter by clients**
+5. Search for `realm-management`
+6. Select `manage-users`, `view-users`, and `query-users`
+7. Click **Assign**
+
+### 4. Generate the client secret
+
+1. Still on `auth-server-client`, go to the **Credentials** tab
+2. Click **Regenerate** (dismiss the adapter warning toast — it is informational only)
+3. Copy the new secret value
+4. Paste it into your `.env` file:
+
+```env
+KEYCLOAK_CLIENT_SECRET=<your-secret-here>
+```
+
+---
+
+## Keycloak Realm Reference
 
 The `keycloak/realm-import.json` file pre-configures:
 
@@ -83,9 +129,7 @@ The `keycloak/realm-import.json` file pre-configures:
 | Realm | `homelab` |
 | Client ID | `auth-server-client` |
 | Client type | Confidential (service account) |
-| Service account role | `manage-users` from `realm-management` |
-
-> **Note:** The client secret in the import JSON is a placeholder. Regenerate it from the Admin UI (*auth-server-client → Credentials → Regenerate*) after first start — the realm config is preserved.
+| Service account roles | `manage-users`, `view-users`, `query-users` from `realm-management` |
 
 ---
 
