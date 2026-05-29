@@ -1,0 +1,42 @@
+{
+  "realm": "homelab",
+  "enabled": true,
+  "displayName": "HomeLab",
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "clients": [
+    {
+      "clientId": "auth-server-client",
+      "name": "Auth Server Client",
+      "description": "Service account used by the Spring Boot auth-server to manage users via the Keycloak Admin REST API",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "change-me-in-production",
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "protocol": "openid-connect"
+    }
+  ],
+  "roles": {
+    "realm": [],
+    "client": {}
+  },
+  "scopeMappings": [],
+  "clientScopeMappings": {
+    "realm-management": [
+      {
+        "client": "auth-server-client",
+        "roles": ["manage-users", "view-users", "query-users"]
+      }
+    ]
+  }
+}
