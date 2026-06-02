@@ -1,0 +1,87 @@
+### Variables
+@baseUrl = http://localhost:8081
+@userId = 0430ab85-b42c-4239-a4d3-13217f4928aa
+
+
+### List users (first page)
+GET {{baseUrl}}/api/users
+Accept: application/json
+
+
+### List users (custom page and size)
+GET {{baseUrl}}/api/users?page=0&size=5
+Accept: application/json
+
+
+### Get user by ID
+GET {{baseUrl}}/api/users/{{userId}}
+Accept: application/json
+
+
+### Create user (with password)
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+  "username": "john.doe",
+  "email": "john.doe@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "password": "Welcome123!",
+  "temporaryPassword": false
+}
+
+
+### Create user (no password — set it separately)
+POST {{baseUrl}}/api/users
+Content-Type: application/json
+
+{
+  "username": "jane.doe",
+  "email": "jane.doe@example.com",
+  "firstName": "Jane",
+  "lastName": "Doe"
+}
+
+
+### Update user (partial — only supplied fields are changed)
+PUT {{baseUrl}}/api/users/{{userId}}
+Content-Type: application/json
+
+{
+  "firstName": "Jonathan",
+  "email": "jonathan.doe@example.com"
+}
+
+
+### Disable a user
+PUT {{baseUrl}}/api/users/{{userId}}
+Content-Type: application/json
+
+{
+  "enabled": false
+}
+
+
+### Set / reset password
+PUT {{baseUrl}}/api/users/{{userId}}/password
+Content-Type: application/json
+
+{
+  "password": "NewPassword456!",
+  "temporary": false
+}
+
+
+### Set temporary password (user must change on next login)
+PUT {{baseUrl}}/api/users/{{userId}}/password
+Content-Type: application/json
+
+{
+  "password": "Temp123!",
+  "temporary": true
+}
+
+
+### Delete user
+DELETE {{baseUrl}}/api/users/{{userId}}
