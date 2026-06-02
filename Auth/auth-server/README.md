@@ -154,12 +154,21 @@ Keycloak (any event: UI or API) → POST /webhooks/keycloak → KeycloakEventSer
 
 The webhook fires for **all** user changes — whether done via this app, the Admin UI, or any other client. This is the source of truth for reacting to user lifecycle events across microservices.
 
-### Setup — download the plugin JAR
+### Setup — download the plugin JARs
 
-1. Download `keycloak-webhook-provider-http-0.9.1-all.jar` from:
-   https://github.com/vymalo/keycloak-webhook/releases/tag/v0.9.1
+Two JARs are required — `core` provides the base classes, `http` provides the HTTP-calling implementation. Both must be present or Keycloak will fail to start.
 
-2. Place it in `keycloak/providers/` (already mounted into the Keycloak container)
+1. Download both `-all` JARs from https://github.com/vymalo/keycloak-webhook/releases/tag/v0.9.1:
+   - `keycloak-webhook-provider-core-0.9.1-all.jar`
+   - `keycloak-webhook-provider-http-0.9.1-all.jar`
+
+2. Place **both** in `keycloak/providers/`:
+   ```
+   keycloak/providers/
+   ├── keycloak-webhook-provider-core-0.9.1-all.jar
+   ├── keycloak-webhook-provider-http-0.9.1-all.jar
+   └── .gitkeep
+   ```
 
 3. Restart Keycloak:
    ```bash

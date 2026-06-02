@@ -28,6 +28,10 @@ services:
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # vymalo/keycloak-webhook HTTP provider — required or plugin throws NPE on init
+      WEBHOOK_HTTP_BASE_PATH: http://host.docker.internal:8081/webhooks/keycloak
+      WEBHOOK_HTTP_AUTH_USERNAME: ${WEBHOOK_AUTH_USERNAME}
+      WEBHOOK_HTTP_AUTH_PASSWORD: ${WEBHOOK_AUTH_PASSWORD}
     ports:
       - "8080:8080"
     volumes:

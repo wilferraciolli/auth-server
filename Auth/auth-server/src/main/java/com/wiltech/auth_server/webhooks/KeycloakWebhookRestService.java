@@ -10,32 +10,39 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
- * Receives admin event webhooks from the Keycloak webhook plugin (vymalo/keycloak-webhook).
- * Keycloak POSTs a JSON payload to POST /webhooks/keycloak whenever a user (or other resource)
- * is created, updated, or deleted — regardless of whether the change came from the Admin UI
- * or this application.
- * Security: requests must include the header  X-Webhook-Secret: <value of WEBHOOK_SECRET in .env>
+ * Receives webhook events from the Keycloak webhook plugin (vymalo/keycloak-webhook).
+ *
+ * The plugin POSTs to {WEBHOOK_HTTP_BASE_PATH}/ so both /webhooks/keycloak and
+ * /webhooks/keycloak/ are mapped here to handle trailing-slash variants.
+ *
+ * Security: the plugin sends HTTP Basic Auth credentials configured via
+ * WEBHOOK_HTTP_AUTH_USERNAME / WEBHOOK_HTTP_AUTH_PASSWORD in docker-compose.yml.
+ * These must match webhook.username / webhook.password in application.yml.
  */
 @Slf4j
 @RestController
-@RequestMapping("/webhooks")
+@RequestMapping("/webhooks/keycloak")
 @RequiredArgsConstructor
 public class KeycloakWebhookRestService {
 
     private final KeycloakEventService keycloakEventService;
 
-    @Value("${webhook.secret}")
-    private String webhookSecret;
+    @Value("${webhook.username}")
+    private String webhookUsername;
 
-    @PostMapping("/keycloak")
+    @Value("${webhook.password}")
+    private String webhookPassword;
+
+    @PostMapping({"", "/"})
     public ResponseEntity<Void> receive(
-            @RequestHeader(value = "X-Webhook-Secret", required = false) String incomingSecret,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody KeycloakEventDto event) {
 
-        if (!isValidSecret(incomingSecret)) {
-            log.warn("Rejected webhook request — invalid or missing X-Webhook-Secret");
+        if (!isValidBasicAuth(authHeader)) {
+            log.warn("Rejected webhook request — invalid or missing Basic Auth credentials");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -44,15 +51,21 @@ public class KeycloakWebhookRestService {
     }
 
     /**
-     * Constant-time comparison to prevent timing-based secret enumeration.
+     * Validates HTTP Basic Auth using constant-time comparison to prevent timing attacks.
      */
-    private boolean isValidSecret(String incoming) {
-        if (incoming == null || webhookSecret == null) {
+    private boolean isValidBasicAuth(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Basic ")) {
             return false;
         }
-        return MessageDigest.isEqual(
-                incoming.getBytes(StandardCharsets.UTF_8),
-                webhookSecret.getBytes(StandardCharsets.UTF_8)
-        );
+        try {
+            String decoded = new String(Base64.getDecoder().decode(authHeader.substring(6)), StandardCharsets.UTF_8);
+            String expected = webhookUsername + ":" + webhookPassword;
+            return MessageDigest.isEqual(
+                    decoded.getBytes(StandardCharsets.UTF_8),
+                    expected.getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }

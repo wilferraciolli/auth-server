@@ -20,4 +20,5 @@ keycloak:
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
 
 webhook:
-  secret: ${WEBHOOK_SECRET}
+  username: ${WEBHOOK_AUTH_USERNAME}
+  password: ${WEBHOOK_AUTH_PASSWORD}
