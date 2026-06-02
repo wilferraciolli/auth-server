@@ -43,6 +43,20 @@ public class UserRepository {
     }
 
     /**
+     * Searches by exact username or email. Keycloak's search API is case-insensitive.
+     * Returns an empty list if no match — never throws.
+     */
+    public List<UserRepresentation> search(String username, String email) {
+        if (username != null && !username.isBlank()) {
+            return usersResource().searchByUsername(username, true);
+        }
+        if (email != null && !email.isBlank()) {
+            return usersResource().searchByEmail(email, true);
+        }
+        return List.of();
+    }
+
+    /**
      * Creates a user in Keycloak and returns the new user's ID.
      * Keycloak returns HTTP 201 with a Location header containing the new ID.
      * CreatedResponseUtil extracts that ID for us.

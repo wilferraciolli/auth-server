@@ -18,3 +18,6 @@ keycloak:
   realm: ${KEYCLOAK_REALM:homelab}
   client-id: ${KEYCLOAK_CLIENT_ID:auth-server-client}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
+
+webhook:
+  secret: ${WEBHOOK_SECRET}

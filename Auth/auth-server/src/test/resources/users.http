@@ -2,6 +2,9 @@
 @baseUrl = http://localhost:8081
 @userId = 0430ab85-b42c-4239-a4d3-13217f4928aa
 
+### Query KeyCloak Events
+GET http://localhost:8080/admin/realms/homelab/admin-events?resourceTypes=USER&operationTypes=CREATE,UPDATE,DELETE
+
 
 ### List users (first page)
 GET {{baseUrl}}/api/users

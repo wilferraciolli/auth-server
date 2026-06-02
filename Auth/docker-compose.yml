@@ -32,6 +32,7 @@ services:
       - "8080:8080"
     volumes:
       - ./keycloak/realm-import.json:/opt/keycloak/data/import/realm-import.json:ro
+      - ./keycloak/providers:/opt/keycloak/providers
     networks:
       - keycloak-net
     depends_on:

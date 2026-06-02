@@ -75,4 +75,16 @@ public class UserService {
         credential.setTemporary(temporary);
         userRepository.resetPassword(id, credential);
     }
+
+    /**
+     * Searches by exact username or email — at least one must be provided.
+     * Returns the first match or empty if not found.
+     */
+    public List<UserDto> searchUsers(String username, String email) {
+        return userRepository.search(username, email)
+                .stream()
+                .map(UserDto::fromRepresentation)
+                .toList();
+    }
+
 }

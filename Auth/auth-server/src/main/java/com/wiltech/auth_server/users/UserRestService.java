@@ -55,4 +55,19 @@ public class UserRestService {
         userService.setPassword(id, dto.getPassword(), dto.isTemporary());
         return ResponseEntity.noContent().build();
     }
+
+    /**
+     * Search by exact username or email.
+     * At least one query param must be provided.
+     * Example: GET /api/users/search?username=john.doe
+     *          GET /api/users/search?email=john@example.com
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDto>> searchUsers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email) {
+        return ResponseEntity.ok(userService.searchUsers(username, email));
+    }
+
+
 }
