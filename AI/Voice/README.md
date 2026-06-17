@@ -1,5 +1,4 @@
 # Voice AI
-
 A self-hosted voice processing stack running on Docker.
 
 ## Services
